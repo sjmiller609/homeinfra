@@ -1,0 +1,7 @@
+---
+- name: make sure samantha is present
+  become: yes
+  user:
+    name: samantha
+    password: '{{ samanthapass }}'
+

@@ -1,0 +1,15 @@
+---
+
+- hosts: all
+  roles:
+    - steven
+    - samantha
+
+- hosts: gpumachine
+  roles:
+    - chrome
+    - nvidia
+  
+- hosts: laptopserver
+  roles:
+    - chrome

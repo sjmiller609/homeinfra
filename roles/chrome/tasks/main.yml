@@ -1,0 +1,19 @@
+---
+
+- name: "ensure Google linux signing key present"
+  become: yes
+  apt_key: url=https://dl-ssl.google.com/linux/linux_signing_key.pub state=present
+
+- name: "ensure Google chrome repo present"
+  become: yes
+  apt_repository:
+    repo: "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main"
+    filename: "google-chrome"
+    state: present
+    update_cache: yes
+
+- name: "ensure Google chrome present"
+  become: yes
+  apt:
+    name: "google-chrome-stable"
+    state: present

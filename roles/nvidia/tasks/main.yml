@@ -1,0 +1,11 @@
+---
+
+- name: NVIDIA | Add repository for package owner
+  apt_repository:
+    repo: 'ppa:graphics-drivers'
+    state: present
+    update_cache: yes
+
+- name: install driver
+  apt:
+    name: nvidia-384
