@@ -1,0 +1,7 @@
+---
+
+- name: install discord
+  apt:
+    deb: https://discordapp.com/api/download?platform=linux&format=deb
+
+

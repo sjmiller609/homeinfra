@@ -1,0 +1,12 @@
+---
+
+- hosts: localhost
+  become: yes
+  roles:
+    - devtools
+    - desktop
+    - discord
+    - chrome
+    - nvidia
+    - virtualbox
+    - vagrant

@@ -1,0 +1,5 @@
+---
+
+- name: install desktop
+  apt:
+    name: ubuntu-desktop

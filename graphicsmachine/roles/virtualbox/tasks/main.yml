@@ -1,0 +1,4 @@
+---
+- name: install virtualbox
+  apt:
+    name: virtualbox

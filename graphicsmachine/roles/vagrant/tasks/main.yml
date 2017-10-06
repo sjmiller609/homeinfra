@@ -1,0 +1,4 @@
+---
+- name: install vagrant
+  apt:
+    name: vagrant

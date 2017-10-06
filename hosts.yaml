@@ -1,5 +1,0 @@
----
-all:
-  hosts:
-    gpumachine:
-      ansible_connection: local

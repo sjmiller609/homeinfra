@@ -1,0 +1,12 @@
+---
+
+- name: install packages
+  apt:
+    name: "{{ item }}"
+  with_items:
+    - software-properties-common
+    - git
+    - vim
+    - python
+    - python-virtualenv
+    - python-pip

@@ -1,0 +1,28 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+#used to test the ansible code
+Vagrant.configure(2) do |config|
+   #vagrant box add ubuntu-desktop ./package.box
+   config.vm.box = "ubuntu/xenial64"
+
+   config.ssh.username = "ubuntu"
+   config.ssh.password = "vagrant"
+
+   config.vm.provider "virtualbox" do |vb|
+     # Display the VirtualBox GUI when booting the machine
+     vb.gui = true
+  
+     # Customize the amount of memory on the VM:
+     vb.cpus = "4"
+     vb.memory = "4096"
+   end
+
+   config.vm.provision "shell", inline: <<-SHELL
+	apt-add-repository ppa:ansible/ansible
+	apt-get update
+	apt-get install -y ubuntu-desktop
+       echo "vagrant\nvagrant" | passwd ubuntu
+   SHELL
+
+end
