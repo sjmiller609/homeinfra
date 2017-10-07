@@ -10,3 +10,4 @@
     - python
     - python-virtualenv
     - python-pip
+    - tmux

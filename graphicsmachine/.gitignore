@@ -1,3 +1,6 @@
 package.box
 .vagrant
 .vagrant/*
+*.retry
+hosts.yml
+hosts.yaml

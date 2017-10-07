@@ -3,6 +3,7 @@
 
 #used to test the ansible code
 Vagrant.configure(2) do |config|
+
    #vagrant box add ubuntu-desktop ./package.box
    config.vm.box = "ubuntu-desktop"
 
@@ -34,7 +35,7 @@ Vagrant.configure(2) do |config|
 	ansible --version
         #tmux
 	cd /vagrant/
-	ansible-playbook -i ./vagranthosts.yml deploy.yml
+	ansible-playbook -i ./.vagranthosts.yml deploy.yml
    SHELL
 
 end

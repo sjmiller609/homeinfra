@@ -11,3 +11,34 @@
   become: yes
   apt:
     name: nvidia-384
+
+- name: install nvidia configuration
+  become: yes
+  copy: 
+    src: xorg.conf
+    dest: /etc/X11/xorg.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: install nvidia configuration
+  copy: 
+    src: xorg.conf
+    dest: /home/steven/.nvidia-settings-rc
+    owner: steven
+    group: steven
+    mode: 0644
+
+- name: install display configuration
+  copy: 
+    src: monitors.xml
+    dest: /home/steven/.config/monitors.xml
+    owner: steven
+    group: steven
+    mode: 0644
+
+- name: restart lightdm
+  become: yes
+  service:
+    name: lightdm
+    state: restarted
