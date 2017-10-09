@@ -5,4 +5,4 @@
     name: ubuntu-desktop
 
 - name: set favorites
-  shell: gsettings set com.canonical.Unity.Launcher favorites "['firefox.desktop','google-chrome.desktop','discord.desktop','libre.desktop']"
+  shell: gsettings set com.canonical.Unity.Launcher favorites "['shutdown.desktop','nautilus.desktop','firefox.desktop','google-chrome.desktop','discord.desktop','libreoffice-startcenter.desktop','htop.desktop','gnome-terminal.desktop']"

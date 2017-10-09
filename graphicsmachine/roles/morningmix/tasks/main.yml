@@ -1,0 +1,19 @@
+---
+
+- name: ensure youtube-dl is installed
+  become: yes
+  pip:
+    name: youtube-dl
+
+- name: make directory
+  become: no
+  file:
+    state: directory
+    owner: steven
+    path: ~/morningmix
+
+- name: download morning mix
+  become: no
+  shell: youtube-dl "https://www.youtube.com/watch?v=FxzBvqY5PP0&list=PLTG6XJDnYHAcMd3-qKSjgd3rTtW7D95aw"
+    args:
+      chdir: ~/morningmix

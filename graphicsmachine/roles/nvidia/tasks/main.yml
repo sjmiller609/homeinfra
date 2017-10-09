@@ -11,6 +11,7 @@
   become: yes
   apt:
     name: nvidia-384
+  register: driver
 
 - name: install nvidia configuration
   become: yes
@@ -20,6 +21,7 @@
     owner: root
     group: root
     mode: 0644
+  register: conf1
 
 - name: install nvidia configuration
   copy: 
@@ -28,6 +30,7 @@
     owner: steven
     group: steven
     mode: 0644
+  register: conf2
 
 - name: install display configuration
   copy: 
@@ -36,9 +39,17 @@
     owner: steven
     group: steven
     mode: 0644
+  register: conf3
+
+- name: determine what changed
+  set_fact:
+    restart_lightdm: driver.changed or conf1.changed or conf2.changed or conf3.changed
+
+- debug: var=restart_lightdm
 
 - name: restart lightdm
   become: yes
+  when: restart_lightdm
   service:
     name: lightdm
     state: restarted
