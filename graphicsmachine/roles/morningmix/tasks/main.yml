@@ -15,5 +15,19 @@
 - name: download morning mix
   become: no
   shell: youtube-dl "https://www.youtube.com/watch?v=FxzBvqY5PP0&list=PLTG6XJDnYHAcMd3-qKSjgd3rTtW7D95aw"
-    args:
-      chdir: ~/morningmix
+  args:
+    chdir: ~/morningmix
+
+- name: ensure vlc is installed
+  become: yes
+  apt:
+    name: vlc
+
+- name: set up alarm clock
+  cron:
+    name: "alarm clock"
+    weekday: 1-5 #this means weekdays only
+    #user: steven
+    job: /usr/bin/vlc $(ls /home/steven/morningmix | shuf -n 1)
+    hour: 18
+    minute: 20
