@@ -1,6 +1,7 @@
 import requests
 import os
 import sys
+import re
 import subprocess
 import shutil
 from getpass import getpass
@@ -122,9 +123,11 @@ def main():
     username = raw_input("username: ")
     full_name = raw_input("full name: ")
     password = getpass("password (no visual feedback): ")
-    url = "http://releases.ubuntu.com/16.04.3/ubuntu-16.04.3-desktop-amd64.iso"
+    #url = "http://releases.ubuntu.com/16.04.3/ubuntu-16.04.3-desktop-amd64.iso"
+    url = "http://releases.ubuntu.com/16.04.3/ubuntu-16.04.3-server-amd64.iso"
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    filename = "ubuntu-16.04.3-desktop-amd64.iso"
+    #filename = "ubuntu-16.04.3-desktop-amd64.iso"
+    filename = "ubuntu-16.04.3-server-amd64.iso"
     path = os.path.join(dir_path, filename)
     download_file(url, path)
     mounted_iso = MountedIso(path)
@@ -133,6 +136,9 @@ def main():
     new_iso.add_file(
         os.path.join(dir_path, "txt.cfg"),
         os.path.join(working_dir, "isolinux", "txt.cfg"))
+    new_iso.add_file(
+        os.path.join(dir_path, "ubuntu-auto.seed"),
+        os.path.join(working_dir, "ubuntu-auto.seed"))
     with open("ks.cfg.j2", "r") as f:
         ks_data = f.read()
     print(ks_data)
@@ -140,10 +146,23 @@ def main():
     ks_data = ks_data.replace("{{ username }}",username)
     ks_data = ks_data.replace("{{ full_name }}",full_name)
     print(ks_data)
+    with open("ks.cfg", "w") as f:
+        f.write(ks_data)
    #TODO 
     new_iso.add_file(
-        os.path.join(dir_path, "ks.cfg.j2"),
-        os.path.join(working_dir, "isolinux", "txt.cfg"))
+        os.path.join(dir_path, "ks.cfg"),
+        os.path.join(working_dir, "ks.cfg"))
+    os.remove("ks.cfg")
+    #sed -i -r 's/timeout\s+[0-9]+/timeout 3/g' ubuntu_files/isolinux/isolinux.cfg
+    isolinux_path = os.path.join(working_dir,"isolinux","isolinux.cfg")
+    with open(isolinux_path,"r") as f:
+        isolinux = f.read()
+    re_timeout = re.compile("timeout\s+[0-9]+")
+    isolinux = re_timeout.sub("timeout 3",isolinux)
+    with open("/tmp/isolinux","w") as f:
+        f.write(isolinux)
+    new_iso.add_file("/tmp/isolinux",isolinux_path)
+    os.remove("/tmp/isolinux")
     #new_iso.add_file(
     new_iso_path = new_iso.get_iso(path=os.path.join(dir_path,"customubuntu.iso"))
     print(new_iso_path)
