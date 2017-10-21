@@ -1,0 +1,11 @@
+---
+
+- name: ensure vlc is installed
+  become: yes
+  apt:
+    name: vlc
+
+- name: add to favorites
+  become: no
+  shell: gsettings set com.canonical.Unity.Launcher favorites "$(gsettings get com.canonical.Unity.Launcher favorites | sed "s/, *'vlc.desktop' *//g" | sed "s/'vlc.desktop' *, *//g" | sed -e "s/]$/, 'vlc.desktop']/")"
+
