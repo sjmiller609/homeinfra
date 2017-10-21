@@ -27,6 +27,7 @@
     - set noautoindent
     - set nocindent
     - set nosmartindent
+    - set scrolloff=23
     - filetype indent off
     - autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
 
