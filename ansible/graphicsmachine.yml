@@ -2,8 +2,8 @@
 
 - hosts: localhost
   roles:
-    - desktop
     - devtools
+    - desktop
     - discord
     - chrome
     - nvidia

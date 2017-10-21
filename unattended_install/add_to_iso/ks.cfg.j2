@@ -52,21 +52,27 @@ openssh-server
 python-pip
 vim
 git
-ubuntu-desktop
-# unity
 
 # Add your custom post installation script here
 %post
 
-sed -i '/#  AutomaticLogin/ s/^#  //;s/user1/{{ username }}/g' /etc/gdm/custom.conf
+# install minimal lightdm before reboot
+apt-get install -y xorg
+apt-get install -y lightdm-gtk-greeter --no-install-recommends
+apt-get install -y lightdm --no-install-recommends
+apt-get install -y openbox --no-install-recommends
 
+# set auto log for our user
+mkdir -p /etc/lightdm/lightdm.conf
+echo "[SeatDefaults]" > /etc/lightdm/lightdm.conf
+echo "autlogin-user={{ username }}" >> /etc/lightdm/lightdm.conf
 
-# Fix locale
+# Set locale
 echo 'LANG="en_US.UTF-8"' > /etc/default/locale
 echo 'LANGUAGE="en_US:en"' >> /etc/default/locale
 echo 'LC_ALL="en_US.UTF-8"' >> /etc/default/locale
 
-
+# install ansible, set playbook in rc.local
 pip install ansible
 git clone https://github.com/sjmiller609/homeinfra.git
 echo "#!/bin/sh -e" > /etc/rc.local

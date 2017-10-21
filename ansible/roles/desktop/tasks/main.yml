@@ -1,7 +1,4 @@
 ---
-- name: zero favorites
-  become: no
-  shell: gsettings set com.canonical.Unity.Launcher favorites "[]" && sleep 2
 
 - name: install desktop
   become: yes
