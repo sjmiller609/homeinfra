@@ -24,6 +24,7 @@
   register: conf1
 
 - name: install nvidia configuration
+  become: no
   copy: 
     src: xorg.conf
     dest: /home/steven/.nvidia-settings-rc
@@ -33,6 +34,7 @@
   register: conf2
 
 - name: install display configuration
+  become: no
   copy: 
     src: monitors.xml
     dest: /home/steven/.config/monitors.xml

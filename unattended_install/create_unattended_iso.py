@@ -3,8 +3,10 @@ import os
 import sys
 import re
 import subprocess
+from jinja2 import Environment, meta, Template
 import shutil
 from getpass import getpass
+from random import randint
 
 #import time
 
@@ -65,6 +67,9 @@ class MountedIso():
     def __init__(self, isopath):
         self.isopath = isopath
         self.mountpath = "/tmp/isomount"
+        try:
+            shutil.rmtree(self.mountpath)
+        except Exception: pass
         os.mkdir(self.mountpath)
 
     def __enter__(self):
@@ -83,20 +88,92 @@ class MountedIso():
 class CustomIso():
     def __init__(self, mountediso):
         self.working_dir = "/tmp/workingdir"
+        try:
+            self.clean()
+        except Exception: pass
         os.mkdir(self.working_dir)
         self.generated_iso = False
         self.modified_count = 0
         self.modified_files = set()
+        self.j2_vars = {}
         with mountediso as mount_path:
             command = ["cp", "-rT", mount_path, self.working_dir]
             execute(command)
 
+    def clean(self):
+        command = ["sudo", "rm", "-rf", self.working_dir]
+        execute(command)
+
+    def _input(self, var):
+        value = ""
+        if "secret" in var or "password" in var:
+            value1 = "0"
+            first = True
+            while value != value1:
+                if not first:
+                    print("do not match.")
+                first = False
+                value = getpass("input " + var + " (no visual feedback): ")
+                value1 = getpass("input " + var + " again: ")
+        else:
+            if sys.version_info >= (3, 0):
+                value = input("input " + var + ": ")
+            else:
+                value = raw_input("input " + var + ": ")
+        return value
+
     def add_file(self, src, dest):
+
+        root = self.working_dir
+        dest = os.path.join(root, dest)
+
         if not dest in self.modified_files:
             self.modified_count += 1
         self.modified_files.add(dest)
-        command = ["sudo","cp",src,dest]
-        execute(command)
+
+        if src[-3:] == ".j2":
+            with open(src, "r") as f:
+                j2_data = f.read()
+            env = Environment()
+            parser = env.parse(j2_data)
+            undeclared = meta.find_undeclared_variables(parser)
+            for var in undeclared:
+                if var not in self.j2_vars:
+                    value = self._input(var)
+                    self.j2_vars[var] = value
+            template = Template(j2_data)
+            data = template.render(**self.j2_vars)
+            temp_file = src.replace(".j2", "")
+            try:
+                with open(temp_file, "w") as f:
+                    f.write(data)
+                command = ["sudo", "cp", temp_file, dest]
+                execute(command)
+            except Exception as e:
+                raise e
+            finally:
+                os.remove(temp_file)
+        else:
+            command = ["sudo", "cp", src, dest]
+            execute(command)
+
+    def replace_in_file(self, regex_pattern, replace_with, path):
+
+        path = os.path.join(self.working_dir,path)
+
+        with open(path, "r") as f:
+            filedata = f.read()
+        regex = re.compile(regex_pattern)
+        filedata = regex.sub(replace_with, filedata)
+        temp_file = "/tmp/" + str(randint(0, 1000000000))
+        try:
+            with open(temp_file, "w") as f:
+                f.write(filedata)
+            self.add_file(temp_file, path)
+        except Exception as e:
+            raise e
+        finally:
+            os.remove(temp_file)
 
     def get_iso(self, path="/tmp/customiso.iso", usb=True):
         print("generating new iso...")
@@ -108,21 +185,19 @@ class CustomIso():
             "-boot-info-table", "-o", path, self.working_dir
         ]
         execute(command)
-        command = ["isohybrid", path]
+        command = ["sudo", "isohybrid", path]
+        print("creating isohybrid...")
+        execute(command)
         self.generated_iso = True
         print("complete. custom iso generated after modifying " +
               str(self.modified_count) + " files.")
         return path
 
     def __del__(self):
-        command = ["sudo", "rm", "-rf", self.working_dir]
-        execute(command)
+        self.clean()
 
 
 def main():
-    username = raw_input("username: ")
-    full_name = raw_input("full name: ")
-    password = getpass("password (no visual feedback): ")
     #url = "http://releases.ubuntu.com/16.04.3/ubuntu-16.04.3-desktop-amd64.iso"
     url = "http://releases.ubuntu.com/16.04.3/ubuntu-16.04.3-server-amd64.iso"
     dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -132,39 +207,20 @@ def main():
     download_file(url, path)
     mounted_iso = MountedIso(path)
     new_iso = CustomIso(mounted_iso)
-    working_dir = new_iso.working_dir
+    new_iso.j2_vars["install_mount"] = "/dev/cdrom"
+
+    print("adding files")
+    new_iso.add_file(os.path.join(dir_path, "txt.cfg"), "isolinux/txt.cfg")
     new_iso.add_file(
-        os.path.join(dir_path, "txt.cfg"),
-        os.path.join(working_dir, "isolinux", "txt.cfg"))
-    new_iso.add_file(
-        os.path.join(dir_path, "ubuntu-auto.seed"),
-        os.path.join(working_dir, "ubuntu-auto.seed"))
-    with open("ks.cfg.j2", "r") as f:
-        ks_data = f.read()
-    print(ks_data)
-    ks_data = ks_data.replace("{{ password }}",password)
-    ks_data = ks_data.replace("{{ username }}",username)
-    ks_data = ks_data.replace("{{ full_name }}",full_name)
-    print(ks_data)
-    with open("ks.cfg", "w") as f:
-        f.write(ks_data)
-   #TODO 
-    new_iso.add_file(
-        os.path.join(dir_path, "ks.cfg"),
-        os.path.join(working_dir, "ks.cfg"))
-    os.remove("ks.cfg")
+        os.path.join(dir_path, "ubuntu-auto.seed"), "ubuntu-auto.seed")
+    new_iso.add_file(os.path.join(dir_path, "ks.cfg.j2"), "ks.cfg")
+
     #sed -i -r 's/timeout\s+[0-9]+/timeout 3/g' ubuntu_files/isolinux/isolinux.cfg
-    isolinux_path = os.path.join(working_dir,"isolinux","isolinux.cfg")
-    with open(isolinux_path,"r") as f:
-        isolinux = f.read()
-    re_timeout = re.compile("timeout\s+[0-9]+")
-    isolinux = re_timeout.sub("timeout 3",isolinux)
-    with open("/tmp/isolinux","w") as f:
-        f.write(isolinux)
-    new_iso.add_file("/tmp/isolinux",isolinux_path)
-    os.remove("/tmp/isolinux")
+    new_iso.replace_in_file("timeout\s+[0-9]+", "timeout 3", "isolinux/isolinux.cfg")
+
     #new_iso.add_file(
-    new_iso_path = new_iso.get_iso(path=os.path.join(dir_path,"customubuntu.iso"))
+    new_iso_path = new_iso.get_iso(path=os.path.join(dir_path,
+                                                     "customubuntu.iso"))
     print(new_iso_path)
 
 

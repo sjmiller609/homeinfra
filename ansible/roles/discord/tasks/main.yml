@@ -1,0 +1,12 @@
+---
+
+- name: install discord
+  become: yes
+  apt:
+    deb: https://discordapp.com/api/download?platform=linux&format=deb
+
+- name: add to favorites
+  become: no
+  shell: "gsettings set com.canonical.Unity.Launcher favorites \"$(gsettings get com.canonical.Unity.Launcher favorites | sed \"s/, *'{{ item }}' *//g\" | sed \"s/'{{ item }}' *, *//g\" | sed -e \"s/]$/, '{{ item }}']/\")\""
+  with_items:
+    - discord.desktop

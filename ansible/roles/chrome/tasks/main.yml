@@ -17,3 +17,9 @@
   apt:
     name: "google-chrome-stable"
     state: present
+
+- name: add to favorites
+  become: no
+  shell: "gsettings set com.canonical.Unity.Launcher favorites \"$(gsettings get com.canonical.Unity.Launcher favorites | sed \"s/, *'{{ item }}' *//g\" | sed \"s/'{{ item }}' *, *//g\" | sed -e \"s/]$/, '{{ item }}']/\")\""
+  with_items:
+    - google-chrome.desktop

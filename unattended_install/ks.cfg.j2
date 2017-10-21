@@ -38,7 +38,7 @@ auth  --useshadow  --enablemd5
 #Network information
 network --bootproto=dhcp --device=eth0
 #Firewall configuration
-firewall --disabled 
+firewall --enabled --ssh
 #Do not configure the X Window System
 skipx
 
@@ -48,22 +48,14 @@ ca-certificates
 openssl
 python
 openssh-server
-vim
-ubuntu-desktop
 python-pip
+vim
+# ubuntu-desktop
 # unity
 
 # Add your custom post installation script here
 %post
 
-# Add post installation script to /usr/local/bin/ directory
-touch testfilepost
-whoami >> testfilepost
-#mkdir /mnt/cdrom
-#mount /dev/cdrom /mnt/cdrom
-#cp /mnt/cdrom/post.sh /usr/local/bin/
-#chown ernestas:ernestas /usr/local/bin/post.sh
-#chmod 744 /usr/local/bin/post.sh
 
 # Fix locale
 echo 'LANG="en_US.UTF-8"' > /etc/default/locale
@@ -75,4 +67,14 @@ apt-get -f -y install
 apt-get -y autoremove
 apt-get clean
 
-touch testfilepost2
+# Add post installation script to /usr/local/bin/ directory
+
+mkdir /mnt/installmedia
+mkdir -p /usr/local/bin/frominstallmedia
+mount {{ install_mount }} /mnt/installmedia
+cp -r {{ install_mount }}/post.sh /usr/local/bin/frominstallmedia/
+chown {{ username }}:{{ username }} /usr/local/bin/post.sh
+chmod 744 /usr/local/bin/post.sh
+
+#service start ssh
+#service enable ssh

@@ -1,10 +1,9 @@
 ---
 
 - hosts: localhost
-  become: yes
   roles:
-    - devtools
     - desktop
+    - devtools
     - discord
     - chrome
     - nvidia

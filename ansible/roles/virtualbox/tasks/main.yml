@@ -1,0 +1,9 @@
+---
+- name: install virtualbox
+  become: yes
+  apt:
+    name: virtualbox
+
+- name: add to favorites
+  become: no
+  shell: gsettings set com.canonical.Unity.Launcher favorites "$(gsettings get com.canonical.Unity.Launcher favorites | sed "s/, *'virtualbox.desktop' *//g" | sed "s/'virtualbox.desktop' *, *//g" | sed -e "s/]$/, 'virtualbox.desktop']/")"

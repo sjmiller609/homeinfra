@@ -1,0 +1,37 @@
+---
+
+- name: install packages
+  become: yes
+  apt:
+    name: "{{ item }}"
+  with_items:
+    - software-properties-common
+    - git
+    - vim
+    - python
+    - python-virtualenv
+    - python-pip
+    - tmux
+    - htop
+    - tree
+
+- name: set vimrc
+  become: yes
+  lineinfile:
+    path: /etc/vim/vimrc
+    line: '{{ item }}'
+  with_items:
+    - set tabstop=4
+    - set shiftwidth=4
+    - set expandtab
+    - set noautoindent
+    - set nocindent
+    - set nosmartindent
+    - filetype indent off
+    - autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
+
+- name: add to favorites
+  become: no
+  shell: "gsettings set com.canonical.Unity.Launcher favorites \"$(gsettings get com.canonical.Unity.Launcher favorites | sed \"s/, *'{{ item }}' *//g\" | sed \"s/'{{ item }}' *, *//g\" | sed -e \"s/]$/, '{{ item }}']/\")\""
+  with_items:
+    - htop.desktop
