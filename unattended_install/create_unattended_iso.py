@@ -201,7 +201,6 @@ class CustomIso():
         dest = os.path.join(root, dest)
         print("copying file " + src + " to " + dest)
 
-
         if src[-3:] == ".j2":
             print("reading data from jinjia template")
             with open(src, "r") as f:
@@ -218,7 +217,7 @@ class CustomIso():
             data = template.render(**self.j2_vars)
             temp_file = src.replace(".j2", "")
             try:
-                print("creating temporary file "+temp_file)
+                print("creating temporary file " + temp_file)
                 with open(temp_file, "w") as f:
                     f.write(data)
                 command = ["sudo", "cp", temp_file, dest]
@@ -227,8 +226,8 @@ class CustomIso():
                 raise e
             finally:
                 # use srm in case we wrote a secret to disk
-                print("deleting "+temp_file+" with srm")
-                command = ["srm",temp_file]
+                print("deleting " + temp_file + " with srm")
+                command = ["srm", temp_file]
                 execute(command)
                 #os.remove(temp_file)
         else:
@@ -240,7 +239,6 @@ class CustomIso():
         self.modified_files.add(dest)
 
 
-
 def main():
 
     url = "http://releases.ubuntu.com/16.04.3/ubuntu-16.04.3-server-amd64.iso"
@@ -248,31 +246,32 @@ def main():
     filename = "ubuntu-16.04.3-server-amd64.iso"
     template_dir = "add_to_iso"
     #where we will download the iso to
-    if not os.path.isdir(os.path.join(dir_path,"downloads")):
-        os.mkdir(os.path.join(dir_path,"downloads"))
+    if not os.path.isdir(os.path.join(dir_path, "downloads")):
+        os.mkdir(os.path.join(dir_path, "downloads"))
     iso_path = os.path.join(dir_path, "downloads", filename)
     #where our files to add to the custom iso are located
     files_path = os.path.join(dir_path, template_dir)
 
-    #download file
+    #download iso
     download_file(url, iso_path)
-    '''
-    adding these files:
-    isolinux/txt.cfg
-    ubuntu-auto.seed
-    ks.cfg"
-    '''
+
+    # in this context, we are modifying files for a custom iso
     with CustomIso(iso_path) as custom:
+        # set jinja2 variables, the rest are auto-queried
         custom.j2_vars["install_mount"] = "/dev/cdrom"
+        # files or jinja templates in ./add_to_iso will be rendered and copied into the iso using the same directory structure
         custom.add_from_template_dir(files_path)
+        # find and replace in file isolinux.cfg to set the timeout to 3, 0 causes it to hang
         custom.replace_in_file("timeout\s+[0-9]+", "timeout 3",
                                "isolinux/isolinux.cfg")
+        # make the iso, writing to ./customubuntu.iso
+        # setting usb=True so that we invoke isohybrid
         iso_path = custom.write_iso(
             path=os.path.join(dir_path, "customubuntu.iso"), usb=True)
 
     print("custom iso created.\n")
     print("to write to USB drive:")
-    print("sudo dd if=" + iso_path + " of=/dev/<usb device> bs=4M && sync")
+    print("\nsudo dd if=" + iso_path + " of=/dev/<usb device> bs=4M && sync")
 
 
 if __name__ == "__main__":
