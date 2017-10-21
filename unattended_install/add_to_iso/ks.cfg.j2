@@ -14,6 +14,7 @@ timezone America/New_York
 #Root password
 rootpw --disabled
 #Initial user
+#TODO: --is-crypted
 user {{ username }} --fullname "{{ full_name }}" --password {{ password }}
 #Reboot after installation
 reboot
@@ -51,11 +52,13 @@ openssh-server
 python-pip
 vim
 git
-# ubuntu-desktop
+ubuntu-desktop
 # unity
 
 # Add your custom post installation script here
 %post
+
+sed -i '/#  AutomaticLogin/ s/^#  //;s/user1/{{ username }}/g' /etc/gdm/custom.conf
 
 
 # Fix locale
@@ -63,13 +66,14 @@ echo 'LANG="en_US.UTF-8"' > /etc/default/locale
 echo 'LANGUAGE="en_US:en"' >> /etc/default/locale
 echo 'LC_ALL="en_US.UTF-8"' >> /etc/default/locale
 
+
+pip install ansible
+git clone https://github.com/sjmiller609/homeinfra.git
+echo "#!/bin/sh -e" > /etc/rc.local
+echo "sudo -u {{ username }} ansible-playbook -i /opt/homeinfra/hosts.yml /opt/homeinfra/{{ playbook_to_run }}" >> /etc/rc.local
+echo "exit 0" >> /etc/rc.local
+
 # Clean
 apt-get -f -y install
 apt-get -y autoremove
 apt-get clean
-
-pip install ansible
-cd /opt
-git clone https://github.com/sjmiller609/homeinfra.git
-cd homeinfra
-ansible-playbook -i hosts_yaml {{ playbook_to_run }}
