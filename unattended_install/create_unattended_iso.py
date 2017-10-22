@@ -267,7 +267,7 @@ def main():
         # make the iso, writing to ./customubuntu.iso
         # setting usb=True so that we invoke isohybrid
         iso_path = custom.write_iso(
-            path=os.path.join(dir_path, "customubuntu2.iso"), usb=True)
+            path=os.path.join(dir_path, "customubuntu.iso"), usb=False)
 
     print("custom iso created.\n")
     print("to write to USB drive:")
