@@ -4,6 +4,7 @@
 
 - makes a installation usb for an unattended installation of ubuntu
 - there is a feature to add files to the system after installation
+- there is some ansible code to configure a system the way i like
 
 ### in a python script "create_unattended_iso.py"...
 
