@@ -27,9 +27,9 @@
   become: no
   copy: 
     src: xorg.conf
-    dest: /home/steven/.nvidia-settings-rc
-    owner: steven
-    group: steven
+    dest: /home/{{ username }}/.nvidia-settings-rc
+    owner: {{ username }}
+    group: {{ username }}
     mode: 0644
   register: conf2
 
@@ -37,9 +37,9 @@
   become: no
   copy: 
     src: monitors.xml
-    dest: /home/steven/.config/monitors.xml
-    owner: steven
-    group: steven
+    dest: /home/{{ username }}/.config/monitors.xml
+    owner: {{ username }}
+    group: {{ username }}
     mode: 0644
   register: conf3
 

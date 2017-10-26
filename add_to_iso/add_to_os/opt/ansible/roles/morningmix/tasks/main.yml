@@ -9,7 +9,7 @@
   become: no
   file:
     state: directory
-    owner: steven
+    owner: {{ username }}
     path: ~/morningmix
 
 - name: download morning mix
@@ -22,7 +22,7 @@
   cron:
     name: "alarm clock"
     weekday: 1-5 #this means weekdays only
-    #user: steven
-    job: /usr/bin/vlc $(ls /home/steven/morningmix | shuf -n 1)
+    #user: {{ username }}
+    job: /usr/bin/vlc $(ls /home/{{ username }}/morningmix | shuf -n 1)
     hour: 18
     minute: 20
