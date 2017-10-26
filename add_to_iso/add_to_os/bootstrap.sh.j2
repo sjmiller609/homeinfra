@@ -8,6 +8,7 @@ echo 'LANG="en_US.UTF-8"' > /etc/default/locale
 echo 'LANGUAGE="en_US:en"' >> /etc/default/locale
 echo 'LC_ALL="en_US.UTF-8"' >> /etc/default/locale
 
+apt-get update
 apt-get install -y python python-pip
 pip install ansible
 chown -R {{ username }}:{{ username }} /opt/ansible

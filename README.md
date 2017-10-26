@@ -37,7 +37,7 @@
 - answer the questions
 - copy data to installation media
 - boot from installation media on target system
-- get coffee
+- wait a moment
 - log in
 - decide what to do next. execute /bootstrap.sh ?
 
