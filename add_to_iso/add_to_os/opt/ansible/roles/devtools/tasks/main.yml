@@ -2,24 +2,33 @@
 
 - name: zero favorites
   become: no
-  shell: gsettings set com.canonical.Unity.Launcher favorites "[]" && sleep 2
+  failed_when: false #fails if desktop is not installed, but that's ok
+  shell: gsettings set com.canonical.Unity.Launcher favorites "[]" && sleep 2 # needs a sleep for some reason
 
-- name: install packages
+- name: install packages typically used for development
   become: yes
   apt:
     name: "{{ item }}"
   with_items:
+    - build-essential
     - software-properties-common
-    - git
-    - vim
+    - libssl-dev
+    - libffi-dev
+    - openssl
+    - python-dev
     - python
-    - python-virtualenv
+    - python3
     - python-pip
+    - python3-pip
+    - python-virtualenv
     - tmux
     - htop
     - tree
+    - nmap
+    - vim
+    - git
 
-- name: set vimrc
+- name: setup vimrc
   become: yes
   lineinfile:
     path: /etc/vim/vimrc
@@ -37,6 +46,8 @@
 
 - name: add to favorites
   become: no
+  failed_when: false #fails if desktop is not installed, but that's ok
   shell: "gsettings set com.canonical.Unity.Launcher favorites \"$(gsettings get com.canonical.Unity.Launcher favorites | sed \"s/, *'{{ item }}' *//g\" | sed \"s/'{{ item }}' *, *//g\" | sed -e \"s/]$/, '{{ item }}']/\")\""
   with_items:
+    - terminal.desktop
     - htop.desktop

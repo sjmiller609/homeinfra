@@ -158,6 +158,9 @@ class CustomIso():
         return path
 
     def add_from_template_dir(self, path, append_working_dir=""):
+        if not os.path.isdir(os.path.join(self._working_dir,append_working_dir)):
+            command = ["sudo","mkdir","-p",os.path.join(self._working_dir,append_working_dir)]
+            execute(command)
         assert os.path.isdir(path), "expected " + path + " to be a directory"
         files = os.listdir(path)
         for f in files:
@@ -244,13 +247,15 @@ def main():
     url = "http://releases.ubuntu.com/16.04.3/ubuntu-16.04.3-server-amd64.iso"
     dir_path = os.path.dirname(os.path.realpath(__file__))
     filename = "ubuntu-16.04.3-server-amd64.iso"
-    template_dir = "add_to_iso"
+    iso_template_dir = "add_to_iso"
+    sys_template_dir = "add_to_os"
     #where we will download the iso to
     if not os.path.isdir(os.path.join(dir_path, "downloads")):
         os.mkdir(os.path.join(dir_path, "downloads"))
     iso_path = os.path.join(dir_path, "downloads", filename)
     #where our files to add to the custom iso are located
-    files_path = os.path.join(dir_path, template_dir)
+    iso_files_path = os.path.join(dir_path, iso_template_dir)
+    os_files_path = os.path.join(dir_path, sys_template_dir)
 
     #download iso
     download_file(url, iso_path)
@@ -260,7 +265,7 @@ def main():
         # set jinja2 variables, the rest are auto-queried
         custom.j2_vars["install_mount"] = "/dev/cdrom"
         # files or jinja templates in ./add_to_iso will be rendered and copied into the iso using the same directory structure
-        custom.add_from_template_dir(files_path)
+        custom.add_from_template_dir(iso_files_path)
         # find and replace in file isolinux.cfg to set the timeout to 3, 0 causes it to hang
         custom.replace_in_file("timeout\s+[0-9]+", "timeout 3",
                                "isolinux/isolinux.cfg")

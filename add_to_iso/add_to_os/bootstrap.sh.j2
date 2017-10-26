@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# output all commands
+set -x
+
+# Set locale
+echo 'LANG="en_US.UTF-8"' > /etc/default/locale
+echo 'LANGUAGE="en_US:en"' >> /etc/default/locale
+echo 'LC_ALL="en_US.UTF-8"' >> /etc/default/locale
+
+# install ansible, set playbook in rc.local
+pip install ansible
+chown -R {{ username }}:{{ username }} /opt/ansible
+cd /opt/ansible
+sudo -u {{ username }} ansible-playbook {{ playbook_to_run }}
+
+# Clean
+apt-get -f -y install
+apt-get -y autoremove
+apt-get clean
+
+exit 0

@@ -3,6 +3,3 @@
 - hosts: localhost
   roles:
     - devtools
-    - vlc
-    - discord
-    - chrome

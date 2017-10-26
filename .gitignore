@@ -1,3 +1,7 @@
+*.iso
+ks.cfg
+downloads
+downloads/*
 *.retry
 *.log
-*.iso
+*.box
