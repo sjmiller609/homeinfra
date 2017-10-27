@@ -5,6 +5,11 @@
   apt:
     name: ubuntu-desktop
 
+- name: delete crash reports
+  become: yes
+  shell: "rm -rf /var/crash/*"
+  ignore_errors: true
+
 - name: add to favorites
   become: no
   shell: "gsettings set com.canonical.Unity.Launcher favorites \"$(gsettings get com.canonical.Unity.Launcher favorites | sed \"s/, *'{{ item }}' *//g\" | sed \"s/'{{ item }}' *, *//g\" | sed -e \"s/]$/, '{{ item }}']/\")\""

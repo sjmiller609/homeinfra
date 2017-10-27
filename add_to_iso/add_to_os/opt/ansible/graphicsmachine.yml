@@ -1,14 +1,15 @@
 ---
 
 - hosts: local
+  gather_facts: yes
   roles:
     - devtools
     - desktop
     - discord
     - chrome
-    #- nvidia
     - virtualbox
     - vagrant
     - vlc
     - steam
-    #- morningmix
+    - morningmix
+    - nvidia

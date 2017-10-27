@@ -4,13 +4,17 @@
   become: yes
   pip:
     name: youtube-dl
+    state: latest
+
+- name: clean out directory
+  shell: "rm -rf /home/{{ username }}/morningmix"
 
 - name: make directory
   become: no
   file:
     state: directory
-    owner: {{ username }}
-    path: ~/morningmix
+    owner: "{{ username }}"
+    path: "/home/{{ username }}/morningmix"
 
 - name: download morning mix
   become: no
@@ -20,9 +24,18 @@
 
 - name: set up alarm clock
   cron:
-    name: "alarm clock"
-    weekday: 1-5 #this means weekdays only
-    #user: {{ username }}
-    job: /usr/bin/vlc $(ls /home/{{ username }}/morningmix | shuf -n 1)
-    hour: 18
-    minute: 20
+    name: "{{ item.name }}"
+    weekday: "{{ item.weekdays }}"
+    user: "{{ username }}"
+    job: "export DISPLAY=:0 && /usr/bin/vlc -LZ /home/{{ username }}/morningmix &"
+    hour: "{{ item.hour }}"
+    minute: "{{ item.minute }}"
+  with_items:
+    - weekdays: 1-5
+      hour: 8
+      minute: 0
+      name: alarm clock
+    - weekdays: 6,0
+      hour: 10
+      minute: 0
+      name: alarm clock weekends

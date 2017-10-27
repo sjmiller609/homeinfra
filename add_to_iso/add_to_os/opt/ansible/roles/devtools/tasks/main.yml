@@ -1,17 +1,42 @@
 ---
 
+
 - name: zero favorites
   become: no
   failed_when: false #fails if desktop is not installed, but that's ok
-  shell: gsettings set com.canonical.Unity.Launcher favorites "[]" && sleep 2 # needs a sleep for some reason
+  shell: gsettings set com.canonical.Unity.Launcher favorites "[]"
 
 - name: install packages typically used for development
   become: yes
   apt:
     name: "{{ item }}"
   with_items:
-    - build-essential
+    - apt-transport-https
+    - ca-certificates
+    - curl
     - software-properties-common
+
+- name: Add Docker repository key
+  apt_key:
+    id: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
+    keyserver: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker repository and update apt cache
+  become: yes
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/{{ ansible_lsb.id|lower }} {{ ansible_lsb.codename|lower }} stable"
+    mode: '644'
+    update_cache: yes
+    state: present
+
+- name: install packages typically used for development
+  become: yes
+  apt:
+    name: "{{ item }}"
+    update_cache: no
+  with_items:
+    - build-essential
     - libssl-dev
     - libffi-dev
     - openssl
@@ -27,6 +52,7 @@
     - nmap
     - vim
     - git
+    - docker-ce
 
 - name: setup vimrc
   become: yes
@@ -47,7 +73,7 @@
 - name: add to favorites
   become: no
   failed_when: false #fails if desktop is not installed, but that's ok
-  shell: "gsettings set com.canonical.Unity.Launcher favorites \"$(gsettings get com.canonical.Unity.Launcher favorites | sed \"s/, *'{{ item }}' *//g\" | sed \"s/'{{ item }}' *, *//g\" | sed -e \"s/]$/, '{{ item }}']/\")\" && sleep 2"
+  shell: "gsettings set com.canonical.Unity.Launcher favorites \"$(gsettings get com.canonical.Unity.Launcher favorites | sed \"s/, *'{{ item }}' *//g\" | sed \"s/'{{ item }}' *, *//g\" | sed -e \"s/]$/, '{{ item }}']/\")\""
   with_items:
     - terminal.desktop
     - htop.desktop
