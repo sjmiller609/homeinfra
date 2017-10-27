@@ -1,15 +1,13 @@
 ---
 
-- hosts: localhost
-  vars:
-    username: {{ username }}
+- hosts: local
   roles:
     - devtools
     - desktop
     - discord
     - chrome
-    - nvidia
+    #- nvidia
     - virtualbox
     - vagrant
     - vlc
-    - morningmix
+    #- morningmix
