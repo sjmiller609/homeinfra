@@ -27,7 +27,7 @@
     name: "{{ item.name }}"
     weekday: "{{ item.weekdays }}"
     user: "{{ username }}"
-    job: "export DISPLAY=:0 && /usr/bin/vlc -LZ /home/{{ username }}/morningmix &"
+    job: "{{ item.job }}"
     hour: "{{ item.hour }}"
     minute: "{{ item.minute }}"
   with_items:
@@ -35,7 +35,19 @@
       hour: 8
       minute: 0
       name: alarm clock
+      job: "export DISPLAY=:0 && /usr/bin/vlc -LZ /home/{{ username }}/morningmix &"
+    - weekdays: 1-5
+      hour: 8
+      minute: 30
+      name: alarm clock off
+      job: "pkill -15 vlc"
     - weekdays: 6,0
       hour: 10
       minute: 0
       name: alarm clock weekends
+      job: "export DISPLAY=:0 && /usr/bin/vlc -LZ /home/{{ username }}/morningmix &"
+    - weekdays: 0,6
+      hour: 10
+      minute: 30
+      name: alarm clock weekends off
+      job: "pkill -15 vlc"
