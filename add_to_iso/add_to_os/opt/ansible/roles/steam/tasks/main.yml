@@ -1,0 +1,13 @@
+---
+
+- name: install steam
+  become: yes
+  apt:
+    deb: http://media.steampowered.com/client/installer/steam.deb
+
+- name: add to favorites
+  become: no
+  failed_when: false #fails if desktop is not installed, but that's ok
+  shell: "gsettings set com.canonical.Unity.Launcher favorites \"$(gsettings get com.canonical.Unity.Launcher favorites | sed \"s/, *'{{ item }}' *//g\" | sed \"s/'{{ item }}' *, *//g\" | sed -e \"s/]$/, '{{ item }}']/\")\""
+  with_items:
+    - steam.desktop

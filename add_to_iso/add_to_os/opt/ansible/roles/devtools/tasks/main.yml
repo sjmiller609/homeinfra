@@ -47,7 +47,7 @@
 - name: add to favorites
   become: no
   failed_when: false #fails if desktop is not installed, but that's ok
-  shell: "gsettings set com.canonical.Unity.Launcher favorites \"$(gsettings get com.canonical.Unity.Launcher favorites | sed \"s/, *'{{ item }}' *//g\" | sed \"s/'{{ item }}' *, *//g\" | sed -e \"s/]$/, '{{ item }}']/\")\""
+  shell: "gsettings set com.canonical.Unity.Launcher favorites \"$(gsettings get com.canonical.Unity.Launcher favorites | sed \"s/, *'{{ item }}' *//g\" | sed \"s/'{{ item }}' *, *//g\" | sed -e \"s/]$/, '{{ item }}']/\")\" && sleep 2"
   with_items:
     - terminal.desktop
     - htop.desktop
